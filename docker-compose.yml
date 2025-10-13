@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  auth:
+    build: .
+    container_name: auvet-auth
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mysql://auvet_user:auvet123@auvet-mysql:3306/auvet_db
+      - PORT=4000
+      - JWT_SECRET=auvet-secret-key-change-in-production
+      - JWT_EXPIRATION=24h
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - auvet-backend_auvet-network
+
+networks:
+  auvet-backend_auvet-network:
+    external: true
+

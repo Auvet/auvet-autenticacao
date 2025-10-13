@@ -15,8 +15,6 @@ services:
       - PORT=4000
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=24h
-    env_file:
-      - .env.production
     networks:
       - auvet-backend_auvet-network-prod
 

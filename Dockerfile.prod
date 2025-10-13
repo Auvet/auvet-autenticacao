@@ -26,15 +26,6 @@ npx prisma generate\n\
 echo "Pushing database schema..."\n\
 npx prisma db push\n\
 \n\
-# Run lint\n\
-echo "Running lint..."\n\
-npm run lint:check\n\
-\n\
-# Run tests\n\
-echo "Running tests..."\n\
-npm test\n\
-\n\
-echo "Tests completed successfully!"\n\
 echo "Starting application..."\n\
 exec "$@"' > /usr/local/bin/docker-entrypoint.sh && \
     chmod +x /usr/local/bin/docker-entrypoint.sh

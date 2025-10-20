@@ -22,9 +22,8 @@ echo "Starting AUVET Authentication Service (Production)..."\n\
 echo "Generating Prisma client..."\n\
 npx prisma generate\n\
 \n\
-# Push database schema\n\
-echo "Pushing database schema..."\n\
-npx prisma db push\n\
+# Note: Database migrations are managed by auvet-backend\n\
+# This service only generates the Prisma client\n\
 \n\
 echo "Starting application..."\n\
 exec "$@"' > /usr/local/bin/docker-entrypoint.sh && \

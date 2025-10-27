@@ -34,6 +34,7 @@ export interface RegisterTutorRequest {
   senha: string;
   telefone?: string;
   endereco?: string;
+  clinicas: string[];
 }
 
 export interface RegisterFuncionarioRequest {

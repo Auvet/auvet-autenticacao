@@ -61,6 +61,7 @@ describe('AuthValidator', () => {
         nome: 'João Silva',
         email: 'joao@email.com',
         senha: 'senha123',
+        clinicas: ['12345678000190'],
       };
 
       const result = AuthValidator.validateRegisterTutor(data);
@@ -72,6 +73,7 @@ describe('AuthValidator', () => {
       const data = {
         cpf: '12345678900',
         nome: '',
+        clinicas: ['12345678000190'],
         email: 'joao@email.com',
         senha: 'senha123',
       };

@@ -60,6 +60,10 @@ export class AuthValidator {
       }
     }
 
+    if (!data.clinicas || !Array.isArray(data.clinicas) || data.clinicas.length === 0) {
+      errors.push('Tutor deve estar vinculado a pelo menos uma clínica');
+    }
+
     return {
       isValid: errors.length === 0,
       errors,

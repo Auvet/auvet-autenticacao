@@ -10,6 +10,21 @@ app.use('/api/auth', authController.router);
 
 describe('AuthController - Integration Tests', () => {
   describe('POST /api/auth/register/tutor', () => {
+    it('deve retornar erro quando clínicas não fornecidas', async() => {
+      const response = await request(app)
+        .post('/api/auth/register/tutor')
+        .send({
+          cpf: '12345678900',
+          nome: 'João Silva',
+          email: 'joao@email.com',
+          senha: 'senha123',
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toContain('clínica');
+    });
+
     it('deve retornar erro de validação para CPF inválido', async() => {
       const response = await request(app)
         .post('/api/auth/register/tutor')
@@ -18,6 +33,7 @@ describe('AuthController - Integration Tests', () => {
           nome: 'João Silva',
           email: 'joao@email.com',
           senha: 'senha123',
+          clinicas: ['12345678000190'],
         });
 
       expect(response.status).toBe(400);
@@ -33,6 +49,7 @@ describe('AuthController - Integration Tests', () => {
           nome: 'João Silva',
           email: 'emailinvalido',
           senha: 'senha123',
+          clinicas: ['12345678000190'],
         });
 
       expect(response.status).toBe(400);
@@ -48,6 +65,7 @@ describe('AuthController - Integration Tests', () => {
           nome: 'João Silva',
           email: 'joao@email.com',
           senha: '123',
+          clinicas: ['12345678000190'],
         });
 
       expect(response.status).toBe(400);

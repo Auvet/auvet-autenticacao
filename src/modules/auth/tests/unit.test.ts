@@ -24,6 +24,7 @@ describe('AuthService - Unit Tests', () => {
         senha: 'senha123',
         telefone: '61999999999',
         endereco: 'Rua X, 123',
+        clinicas: ['12345678000190'],
       };
 
       mockAuthRepository.getUsuarioByCpf = jest.fn().mockResolvedValue(null);
@@ -51,12 +52,25 @@ describe('AuthService - Unit Tests', () => {
       expect(mockAuthRepository.createUsuarioWithTutor).toHaveBeenCalled();
     });
 
+    it('deve lançar erro se clínicas não fornecidas', async() => {
+      const tutorData: any = {
+        cpf: '12345678900',
+        nome: 'João Silva',
+        email: 'joao@email.com',
+        senha: 'senha123',
+        clinicas: [],
+      };
+
+      await expect(authService.registerTutor(tutorData as any)).rejects.toThrow('Tutor deve estar vinculado a pelo menos uma clínica');
+    });
+
     it('deve lançar erro se CPF já existe', async() => {
       const tutorData = {
         cpf: '12345678900',
         nome: 'João Silva',
         email: 'joao@email.com',
         senha: 'senha123',
+        clinicas: ['12345678000190'],
       };
 
       mockAuthRepository.getUsuarioByCpf = jest.fn().mockResolvedValue({
@@ -72,6 +86,7 @@ describe('AuthService - Unit Tests', () => {
         nome: 'João Silva',
         email: 'joao@email.com',
         senha: 'senha123',
+        clinicas: ['12345678000190'],
       };
 
       mockAuthRepository.getUsuarioByCpf = jest.fn().mockResolvedValue(null);

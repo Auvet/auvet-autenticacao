@@ -53,7 +53,7 @@ export class AuthService {
     };
   }
 
-  async registerFuncionario(data: RegisterFuncionarioRequest): Promise<{ cpf: string; nome: string; email: string; tipoUsuario: string }> {
+  async registerFuncionario(data: RegisterFuncionarioRequest): Promise<{ cpf: string; nome: string; email: string; tipoUsuario: string; token?: string }> {
     console.log(`Registrando funcionário: ${data.cpf}`);
 
     const validation = AuthValidator.validateRegisterFuncionario(data);
@@ -77,12 +77,26 @@ export class AuthService {
 
     console.log(`Funcionário registrado com sucesso: ${result.usuario.cpf}`);
 
-    return {
+    const response: { cpf: string; nome: string; email: string; tipoUsuario: string; token?: string } = {
       cpf: result.usuario.cpf,
       nome: result.usuario.nome,
       email: result.usuario.email,
       tipoUsuario: 'funcionario',
     };
+
+    if (result.funcionario.cargo.toLowerCase() === 'administrador') {
+      const tokenPayload: TokenPayload = {
+        cpf: result.usuario.cpf,
+        email: result.usuario.email,
+        tipoUsuario: 'funcionario',
+        nivelAcesso: result.funcionario.nivelAcesso,
+      };
+
+      response.token = JwtUtils.generateToken(tokenPayload);
+      console.log(`Token gerado automaticamente para administrador: ${result.usuario.cpf}`);
+    }
+
+    return response;
   }
 
   async login(loginData: LoginRequest): Promise<LoginResponse> {

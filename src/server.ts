@@ -8,6 +8,27 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env['PORT'] || 4000;
+const corsEnv = process.env['CORS_ORIGINS'] || process.env['CORS_ORIGIN'];
+const allowedOrigins = (corsEnv || 'http://localhost:5173,https://auvet-frontendd.vercel.app')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 app.use(express.json());
 

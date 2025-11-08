@@ -96,3 +96,11 @@ export interface ValidateTokenResponse {
   nivelAcesso: number;
 }
 
+export interface UsuarioByCpfResponse {
+  cpf: string;
+  nome: string;
+  email: string;
+  tipoUsuario: 'tutor' | 'funcionario';
+  dadosAdicionais: TutorDados | FuncionarioDados;
+}
+

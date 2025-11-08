@@ -19,6 +19,7 @@ export class AuthController {
     this.router.post('/register/funcionario', this.registerFuncionario.bind(this));
     this.router.post('/login', this.login.bind(this));
     this.router.post('/validatetoken', this.validateToken.bind(this));
+    this.router.get('/usuarios/:cpf', this.getUsuarioByCpf.bind(this));
   }
 
   async registerTutor(req: Request, res: Response): Promise<void> {
@@ -134,6 +135,43 @@ export class AuthController {
       };
 
       res.status(401).json(response);
+    }
+  }
+
+  async getUsuarioByCpf(req: Request, res: Response): Promise<void> {
+    const cpfParam = req.params?.['cpf'];
+
+    if (typeof cpfParam !== 'string' || !cpfParam.trim()) {
+      const response: ApiResponse = {
+        success: false,
+        error: 'CPF não fornecido',
+      };
+
+      res.status(400).json(response);
+      return;
+    }
+
+    try {
+      const result = await this.authService.getUsuarioByCpf(cpfParam);
+
+      const response: ApiResponse = {
+        success: true,
+        data: result,
+        message: 'Usuário encontrado com sucesso',
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      const response: ApiResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erro interno do servidor',
+      };
+
+      const statusCode = error instanceof Error && error.message.includes('não encontrado')
+        ? 404
+        : 400;
+
+      res.status(statusCode).json(response);
     }
   }
 }

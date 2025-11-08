@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  auth-db:
+    image: mysql:8.0
+    container_name: auvet-auth-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: auvet_auth
+      MYSQL_USER: auvet_user
+      MYSQL_PASSWORD: auvet123
+    volumes:
+      - auth-db-data:/var/lib/mysql
+    ports:
+      - "3308:3306"
+    networks:
+      - auvet-auth-network
+
   auth:
     build: .
     container_name: auvet-auth
@@ -9,17 +25,22 @@ services:
       - "4000:4000"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=mysql://auvet_user:auvet123@auvet-mysql:3306/auvet_db
+      - DATABASE_URL=mysql://auvet_user:auvet123@auth-db:3306/auvet_auth
       - PORT=4000
       - JWT_SECRET=auvet-secret-key-change-in-production
       - JWT_EXPIRATION=24h
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    depends_on:
+      - auth-db
     networks:
-      - auvet-backend_auvet-network
+      - auvet-auth-network
 
 networks:
-  auvet-backend_auvet-network:
-    external: true
+  auvet-auth-network:
+    driver: bridge
+
+volumes:
+  auth-db-data:
 

@@ -16,36 +16,27 @@ RUN npm run build
 
 EXPOSE 4000
 
-RUN echo '#!/bin/bash\n\
-echo "Starting AUVET Authentication Service..."\n\
-\n\
-# Wait for MySQL to be ready on host\n\
-while ! nc -z host.docker.internal 3307; do\n\
-  echo "Waiting for MySQL on host.docker.internal:3307..."\n\
-  sleep 1\n\
-done\n\
-echo "Database is ready!"\n\
-\n\
-# Generate Prisma client\n\
-echo "Generating Prisma client..."\n\
-npx prisma generate\n\
-\n\
-# Push database schema (apenas tabelas de auth se necessário)\n\
-echo "Pushing database schema..."\n\
-npx prisma db push\n\
-\n\
-# Run lint\n\
-echo "Running lint..."\n\
-npm run lint:check\n\
-\n\
-# Run tests\n\
-echo "Running tests..."\n\
-npm test\n\
-\n\
-echo "Tests completed successfully!"\n\
-echo "Starting application..."\n\
-exec "$@"' > /usr/local/bin/docker-entrypoint.sh && \
-    chmod +x /usr/local/bin/docker-entrypoint.sh
+ENV DB_HOST=auth-db
+ENV DB_PORT=3306
 
-CMD ["npm", "run", "dev"]
+CMD ["bash", "-c", "set -e; \
+echo 'Starting AUVET Authentication Service...'; \
+DB_HOST=${DB_HOST:-auth-db}; \
+DB_PORT=${DB_PORT:-3306}; \
+while ! nc -z $DB_HOST $DB_PORT; do \
+  echo \"Waiting for MySQL on $DB_HOST:$DB_PORT...\"; \
+  sleep 1; \
+done; \
+echo 'Database is ready!'; \
+echo 'Generating Prisma client...'; \
+npx prisma generate; \
+echo 'Pushing database schema...'; \
+npx prisma db push; \
+echo 'Running lint...'; \
+npm run lint:check; \
+echo 'Running tests...'; \
+npm test; \
+echo 'Tests completed successfully!'; \
+echo 'Starting application...'; \
+npm run dev"]
 

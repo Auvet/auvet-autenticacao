@@ -12,6 +12,7 @@ import {
   TutorDados,
   FuncionarioDados,
   Permissoes,
+  UsuarioByCpfResponse,
 } from '../../types';
 
 export class AuthService {
@@ -204,6 +205,47 @@ export class AuthService {
       tipoUsuario: decoded.tipoUsuario,
       nivelAcesso: decoded.nivelAcesso,
     };
+  }
+
+  async getUsuarioByCpf(cpf: string): Promise<UsuarioByCpfResponse> {
+    if (!cpf) {
+      throw new Error('CPF é obrigatório');
+    }
+
+    const usuario = await this.authRepository.getUsuarioByCpf(cpf);
+
+    if (!usuario) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    if (usuario.funcionario) {
+      return {
+        cpf: usuario.cpf,
+        nome: usuario.nome,
+        email: usuario.email,
+        tipoUsuario: 'funcionario',
+        dadosAdicionais: {
+          cargo: usuario.funcionario.cargo,
+          registroProfissional: usuario.funcionario.registroProfissional,
+          status: usuario.funcionario.status,
+        },
+      };
+    }
+
+    if (usuario.tutor) {
+      return {
+        cpf: usuario.cpf,
+        nome: usuario.nome,
+        email: usuario.email,
+        tipoUsuario: 'tutor',
+        dadosAdicionais: {
+          telefone: usuario.tutor.telefone,
+          endereco: usuario.tutor.endereco,
+        },
+      };
+    }
+
+    throw new Error('Usuário não possui perfil associado');
   }
 }
 

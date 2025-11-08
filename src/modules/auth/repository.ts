@@ -5,7 +5,6 @@ export class AuthRepository {
   async createUsuarioWithTutor(data: RegisterTutorRequest, hashedPassword: string): Promise<{ usuario: Usuario; tutor: Tutor }> {
     const cleanCpf = data.cpf.replace(/[^\d]/g, '');
 
-    // Validar que pelo menos uma clínica foi fornecida
     if (!data.clinicas || data.clinicas.length === 0) {
       throw new Error('Tutor deve estar vinculado a pelo menos uma clínica');
     }

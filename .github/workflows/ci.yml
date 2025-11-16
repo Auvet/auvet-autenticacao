@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - "3306:3306"
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/auvet_auth
+      NODE_ENV: test
+      JWT_SECRET: test-secret
+      JWT_EXPIRATION: 24h
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for MySQL and create database
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -proot --silent; then
+              break
+            fi
+            sleep 2
+          done
+          mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS auvet_auth;"
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Push Prisma schema
+        run: npx prisma db push
+
+      - name: Run ESLint (no warnings allowed)
+        run: npm run lint:check
+
+      - name: Run tests
+        run: npm test -- --ci
+
+
